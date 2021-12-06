@@ -1,0 +1,11 @@
+---
+applications:
+  - name: di-auth-identity-stub-build
+    path: build/distributions/di-ipv-credential-issuer-stub.zip
+    memory: 1G
+    buildpack: java_buildpack
+    command: cd di-ipv-credential-issuer-stub && bin/di-ipv-credential-issuer-stub
+    env:
+      JAVA_HOME: "../.java-buildpack/open_jdk_jre"
+      JBP_CONFIG_OPEN_JDK_JRE: '{ jre: { version: 17.+}}'
+      CREDENTIAL_ISSUER_PORT: 8080

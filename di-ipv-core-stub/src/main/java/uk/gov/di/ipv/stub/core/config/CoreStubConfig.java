@@ -41,9 +41,10 @@ public class CoreStubConfig {
             getConfigValue("CORE_STUB_USER_DATA_PATH", "config/experian-uat-users-large.zip");
     public static final String CORE_STUB_CONFIG_FILE =
             getConfigValue("CORE_STUB_CONFIG_FILE", "/app/config/cris-dev.yaml");
-    public static final byte[] CORE_STUB_KEYSTORE_BASE64 =
-            getConfigValue("CORE_STUB_KEYSTORE_BASE64", null).getBytes();
-
+    public static final String CORE_STUB_KEYSTORE_BASE64 =
+            getConfigValue("CORE_STUB_KEYSTORE_BASE64", null, true);
+    public static final String CORE_STUB_KEYSTORE_FILE =
+            getConfigValue("CORE_STUB_KEYSTORE_FILE", null, true);
     public static final String CORE_STUB_SIGNING_PRIVATE_KEY_JWK_BASE64 =
             getConfigValue("CORE_STUB_SIGNING_PRIVATE_KEY_JWK_BASE64", null);
     public static final String CORE_STUB_KEYSTORE_PASSWORD =
@@ -57,8 +58,12 @@ public class CoreStubConfig {
     public static final List<CredentialIssuer> credentialIssuers = new ArrayList<>();
 
     private static String getConfigValue(String key, String defaultValue) {
+        return getConfigValue(key, defaultValue, false);
+    }
+
+    private static String getConfigValue(String key, String defaultValue, Boolean allowNullValue) {
         String envValue = Optional.ofNullable(System.getenv(key)).orElse(defaultValue);
-        if (StringUtils.isBlank(envValue)) {
+        if (!allowNullValue && StringUtils.isBlank(envValue)) {
             throw new IllegalStateException(
                     "env var '%s' is not set and there is no default value".formatted(key));
         }

@@ -1,0 +1,7 @@
+credentialIssuerConfigs:
+  - id: exampleCRI
+    name: Example CRI
+    authorizeUrl: http://localhost:1234/oauth2/authorize
+    tokenUrl: http://localhost:5678/oauth2/token
+    credentialUrl: http://localhost:5678/oauth2/credential
+    sendIdentityClaims: true

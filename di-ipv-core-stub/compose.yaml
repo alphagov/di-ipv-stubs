@@ -1,0 +1,17 @@
+version: "3.9"
+services:
+  core-stub:
+    build: ./
+    environment:
+      CORE_STUB_CONFIG_FILE: "/app/di-ipv-cri-config.yaml"
+      CORE_STUB_KEYSTORE_ALIAS: ipv-core-stub
+      CORE_STUB_KEYSTORE_PASSWORD: "puppet"
+      CORE_STUB_KEYSTORE_FILE: "/app/keystore.jks"
+      CORE_STUB_USER_DATA_PATH: "/app/experian-uat-users-large.zip"
+
+    volumes:
+      - "./di-ipv-config.yaml:/app/di-ipv-cri-config.yaml"
+      - "${CONFIG_DIRECTORY}/keystore.jks:/app/keystore.jks"
+      - "${CONFIG_DIRECTORY}/experian-uat-users-large.zip:/app/experian-uat-users-large.zip"
+    ports:
+      - "8085:8085"

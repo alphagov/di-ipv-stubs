@@ -12,6 +12,8 @@ import uk.gov.di.ipv.stub.core.utils.HandlerHelper;
 import uk.gov.di.ipv.stub.core.utils.ViewHelper;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.text.ParseException;
 import java.util.Base64;
@@ -53,11 +55,25 @@ public class CoreStub {
     private RSAKey getSigningKeystore() throws Exception {
         KeyStore keystore = KeyStore.getInstance("pkcs12");
         final char[] keyStorePassword = CoreStubConfig.CORE_STUB_KEYSTORE_PASSWORD.toCharArray();
-        try (ByteArrayInputStream inputStream =
-                new ByteArrayInputStream(
-                        Base64.getDecoder().decode(CoreStubConfig.CORE_STUB_KEYSTORE_BASE64))) {
-            keystore.load(inputStream, keyStorePassword);
+
+        if (CoreStubConfig.CORE_STUB_KEYSTORE_FILE != null) {
+            try (FileInputStream inputStream =
+                    new FileInputStream(CoreStubConfig.CORE_STUB_KEYSTORE_FILE)) {
+                keystore.load(
+                        inputStream, keyStorePassword);
+            }
+        } else if (CoreStubConfig.CORE_STUB_KEYSTORE_BASE64 != null) {
+            try (ByteArrayInputStream inputStream =
+                    new ByteArrayInputStream(
+                            Base64.getDecoder().decode(CoreStubConfig.CORE_STUB_KEYSTORE_BASE64))) {
+                keystore.load(
+                        inputStream, keyStorePassword);
+            }
+        } else {
+            throw new Exception(
+                    "CORE_STUB_KEYSTORE_FILE or CORE_STUB_KEYSTORE_BASE64 must be provided");
         }
+
         return Objects.requireNonNull(
                 RSAKey.load(keystore, CoreStubConfig.CORE_STUB_KEYSTORE_ALIAS, keyStorePassword));
     }

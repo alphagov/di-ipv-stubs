@@ -136,7 +136,7 @@ public class AuthorizeHandler {
                     return null;
                 }
 
-                String sharedClaimsJson = getSharedAttributes(queryParamsMap);
+//                String sharedClaimsJson = getSharedAttributes(queryParamsMap);
 
                 CriType criType = CredentialIssuerConfig.getCriType();
 
@@ -149,7 +149,7 @@ public class AuthorizeHandler {
                 frontendParams.put(IS_FRAUD_TYPE_PARAM, criType.equals(CriType.FRAUD_CRI_TYPE));
                 frontendParams.put(
                         IS_VERIFICATION_TYPE_PARAM, criType.equals(CriType.VERIFICATION_CRI_TYPE));
-                frontendParams.put(SHARED_CLAIMS, sharedClaimsJson);
+//                frontendParams.put(SHARED_CLAIMS, sharedClaimsJson);
 
                 String error = request.attribute(ERROR_PARAM);
                 boolean hasError = error != null;
@@ -191,10 +191,10 @@ public class AuthorizeHandler {
                     Map<String, Object> attributesMap =
                             generateJsonPayload(queryParamsMap.value(JSON_PAYLOAD_PARAM));
 
-                    Map<String, Object> combinedAttributeJson =
-                            generateJsonPayload(getSharedAttributes(queryParamsMap));
-
-                    combinedAttributeJson.putAll(attributesMap);
+//                    Map<String, Object> combinedAttributeJson =
+//                            generateJsonPayload(getSharedAttributes(queryParamsMap));
+//
+//                    combinedAttributeJson.putAll(attributesMap);
 
                     Map<String, Object> gpgMap =
                             generateGpg45Score(
@@ -208,7 +208,7 @@ public class AuthorizeHandler {
                                     queryParamsMap.value(
                                             CredentialIssuerConfig.VERIFICATION_PARAM));
 
-                    Credential credential = new Credential(combinedAttributeJson, gpgMap, userId);
+                    Credential credential = new Credential(attributesMap, gpgMap, userId);
 
                     AuthorizationSuccessResponse successResponse =
                             generateAuthCode(

@@ -49,10 +49,10 @@ public class CredentialHandler {
                     return validationResult.getError().getDescription();
                 }
 
-                if (Validator.isNullBlankOrEmpty(request.body())) {
-                    response.status(HttpServletResponse.SC_BAD_REQUEST);
-                    return "Error: No body found in request";
-                }
+//                if (Validator.isNullBlankOrEmpty(request.body())) {
+//                    response.status(HttpServletResponse.SC_BAD_REQUEST);
+//                    return "Error: No body found in request";
+//                }
 
                 String resourceId = tokenService.getPayload(accessTokenString);
                 Credential credential = credentialService.getCredential(resourceId);

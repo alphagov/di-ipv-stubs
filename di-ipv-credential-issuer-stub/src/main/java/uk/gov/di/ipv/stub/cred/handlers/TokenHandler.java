@@ -80,6 +80,7 @@ public class TokenHandler {
                     String authMethod =
                             clientConfig.getJwtAuthentication().get(AUTHENTICATION_METHOD);
                     if (!authMethod.equals(NONE_AUTHENTICATION_METHOD)) {
+                        LOGGER.error("Invalid Auth Method: {}", authMethod);
                         TokenErrorResponse errorResponse =
                                 new TokenErrorResponse(OAuth2Error.INVALID_REQUEST);
                         response.status(OAuth2Error.INVALID_REQUEST.getHTTPStatusCode());

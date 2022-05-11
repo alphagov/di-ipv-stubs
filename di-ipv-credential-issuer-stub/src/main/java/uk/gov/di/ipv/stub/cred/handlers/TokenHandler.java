@@ -60,8 +60,6 @@ public class TokenHandler {
                     return errorResponse.toJSONObject().toJSONString();
                 }
 
-                if (Validator.isNullBlankOrEmpty(
-                        requestParams.value(RequestParamConstants.CLIENT_ID))) {
                     try {
                         clientJwtVerifier.authenticateClient(requestParams);
                     } catch (ClientAuthenticationException e) {
@@ -72,21 +70,6 @@ public class TokenHandler {
 
                         return errorResponse.toJSONObject().toJSONString();
                     }
-
-                } else {
-                    ClientConfig clientConfig =
-                            CredentialIssuerConfig.getClientConfig(
-                                    requestParams.value(RequestParamConstants.CLIENT_ID));
-                    String authMethod =
-                            clientConfig.getJwtAuthentication().get(AUTHENTICATION_METHOD);
-                    if (!authMethod.equals(NONE_AUTHENTICATION_METHOD)) {
-                        LOGGER.error("Invalid Auth Method: {}", authMethod);
-                        TokenErrorResponse errorResponse =
-                                new TokenErrorResponse(OAuth2Error.INVALID_REQUEST);
-                        response.status(OAuth2Error.INVALID_REQUEST.getHTTPStatusCode());
-                        return errorResponse.toJSONObject().toJSONString();
-                    }
-                }
 
                 String code = requestParams.value(RequestParamConstants.AUTH_CODE);
                 var redirectValidationResult =

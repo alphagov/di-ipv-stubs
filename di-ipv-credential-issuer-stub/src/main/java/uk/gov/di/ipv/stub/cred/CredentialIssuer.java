@@ -44,7 +44,7 @@ public class CredentialIssuer {
         Spark.get("/authorize", authorizeHandler.doAuthorize);
         Spark.post("/authorize", authorizeHandler.generateResponse);
         Spark.post("/token", tokenHandler.issueAccessToken);
-        Spark.post("/credentials/issue", credentialHandler.getResource);
+        Spark.get("/credentials/issue", credentialHandler.getResource);
     }
 
     private void initErrorMapping() {

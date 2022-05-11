@@ -5,6 +5,8 @@ import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import org.eclipse.jetty.http.HttpHeader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -24,6 +26,8 @@ import java.util.Objects;
 public class CredentialHandler {
 
     private static final String DEFAULT_RESPONSE_CONTENT_TYPE = "application/jwt;charset=UTF-8";
+    private static final Logger LOGGER = LoggerFactory.getLogger(CredentialHandler.class);
+
 
     private CredentialService credentialService;
     private TokenService tokenService;
@@ -53,15 +57,16 @@ public class CredentialHandler {
 //                    response.status(HttpServletResponse.SC_BAD_REQUEST);
 //                    return "Error: No body found in request";
 //                }
-
-                String resourceId = tokenService.getPayload(accessTokenString);
-                Credential credential = credentialService.getCredential(resourceId);
-
                 String verifiableCredential;
                 try {
+                    String resourceId = tokenService.getPayload(accessTokenString);
+                    Credential credential = credentialService.getCredential(resourceId);
+
+
                     verifiableCredential =
                             verifiableCredentialGenerator.generate(credential).serialize();
-                } catch (NoSuchAlgorithmException | InvalidKeySpecException | JOSEException e) {
+                } catch (Exception e) {
+                    LOGGER.error("Exception: ", e);
                     response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                     return String.format("Error: Unable to generate VC - '%s'", e.getMessage());
                 }

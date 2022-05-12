@@ -21,7 +21,7 @@ COPY --from=build \
 	/app/
 
 WORKDIR /app
-ADD config config
+# ADD config config
 
 RUN tar -xvf src.tar \
 	&& rm src.tar

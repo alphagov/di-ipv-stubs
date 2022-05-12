@@ -1,0 +1,26 @@
+name: Build & Deploy Core-Stub
+
+on:
+  push:
+    branches:
+      - main
+      - KBV-254-build-docker-image
+    paths:
+      - "di-ipv-core-stub/**"
+      - ".github/workflows/core-stub-image.yml"
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "di-ipv-core-stub/**"
+
+jobs:
+  build-and-push:
+    uses: alphagov/di-dockerfiles/.github/workflows/publish_to_ghcr.yml@main
+    permissions:
+      contents: read
+      packages: write
+    with:
+      docker_context: ./di-ipv-core-stub
+      push_to_ghcr: true
+      ghcr_repo: ghcr.io/alphagov/di/di-ipv-core-stub
+      image_tag: ${{ github.event.inputs.image_tag }}

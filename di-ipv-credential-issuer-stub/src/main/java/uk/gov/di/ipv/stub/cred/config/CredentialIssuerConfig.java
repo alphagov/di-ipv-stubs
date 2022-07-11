@@ -41,6 +41,10 @@ public class CredentialIssuerConfig {
         return CLIENT_CONFIGS.get(clientId);
     }
 
+    public static ClientConfig getDocAppClientConfig() {
+        return getClientConfig("authOrchestratorDocApp");
+    }
+
     public static Map<String, ClientConfig> getClientConfigs() {
         if (CLIENT_CONFIGS == null) {
             CLIENT_CONFIGS = parseClientConfigs();

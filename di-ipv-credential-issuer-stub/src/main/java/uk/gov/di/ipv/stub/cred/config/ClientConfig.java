@@ -12,9 +12,14 @@ public class ClientConfig {
     private String signingPublicJwk;
     private Map<String, String> jwtAuthentication;
     private String base64EncryptionPrivateKey;
+    private String encryptionPublicJwk;
 
     public String getSigningPublicJwk() {
         return signingPublicJwk;
+    }
+
+    public String getEncryptionPublicJwk() {
+        return encryptionPublicJwk;
     }
 
     public void setSigningPublicJwk(String signingPublicJwk) {

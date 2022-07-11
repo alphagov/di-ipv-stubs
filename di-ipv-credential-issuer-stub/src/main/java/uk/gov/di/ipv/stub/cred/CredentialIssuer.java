@@ -5,6 +5,7 @@ import uk.gov.di.ipv.stub.cred.auth.ClientJwtVerifier;
 import uk.gov.di.ipv.stub.cred.config.CredentialIssuerConfig;
 import uk.gov.di.ipv.stub.cred.handlers.AuthorizeHandler;
 import uk.gov.di.ipv.stub.cred.handlers.CredentialHandler;
+import uk.gov.di.ipv.stub.cred.handlers.JwksHandler;
 import uk.gov.di.ipv.stub.cred.handlers.TokenHandler;
 import uk.gov.di.ipv.stub.cred.service.AuthCodeService;
 import uk.gov.di.ipv.stub.cred.service.CredentialService;
@@ -18,6 +19,7 @@ public class CredentialIssuer {
     private final AuthorizeHandler authorizeHandler;
     private final TokenHandler tokenHandler;
     private final CredentialHandler credentialHandler;
+    private final JwksHandler jwksHandler;
 
     public CredentialIssuer() {
         Spark.staticFileLocation("/public");
@@ -35,6 +37,7 @@ public class CredentialIssuer {
         tokenHandler =
                 new TokenHandler(authCodeService, tokenService, validator, clientJwtVerifier);
         credentialHandler = new CredentialHandler(credentialService, tokenService, vcGenerator);
+        jwksHandler = new JwksHandler();
 
         initRoutes();
         initErrorMapping();
@@ -45,6 +48,7 @@ public class CredentialIssuer {
         Spark.post("/authorize", authorizeHandler.generateResponse);
         Spark.post("/token", tokenHandler.issueAccessToken);
         Spark.get("/credentials/issue", credentialHandler.getResource);
+        Spark.get("/.well-known/jwks.json", jwksHandler.getResource);
     }
 
     private void initErrorMapping() {

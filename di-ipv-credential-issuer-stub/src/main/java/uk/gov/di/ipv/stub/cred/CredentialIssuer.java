@@ -47,7 +47,7 @@ public class CredentialIssuer {
         Spark.get("/authorize", authorizeHandler.doAuthorize);
         Spark.post("/authorize", authorizeHandler.generateResponse);
         Spark.post("/token", tokenHandler.issueAccessToken);
-        Spark.get("/credentials/issue", credentialHandler.getResource);
+        Spark.post("/credentials/issue", credentialHandler.getResource);
         Spark.get("/.well-known/jwks.json", jwksHandler.getResource);
     }
 

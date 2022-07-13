@@ -442,7 +442,7 @@ public class AuthorizeHandler {
                 SignedJWT signedJWT =
                         getSignedJWT(requestParam, clientConfig.getEncryptionPrivateKey());
 
-                if (!es256SignatureVerifier.valid(signedJWT, clientConfig.getSigningPublicJwk())) {
+                if (!es256SignatureVerifier.valid(signedJWT, clientConfig.getJwtAuthentication().get("signingPublicJwk"))) {
                     LOGGER.error("JWT signature is invalid");
                     return "Error: Signature of the shared attribute JWT is not valid";
                 }

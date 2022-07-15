@@ -3,7 +3,11 @@ package uk.gov.di.ipv.stub.cred.handlers;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.id.Subject;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
+import com.nimbusds.openid.connect.sdk.UserInfoResponse;
+import com.nimbusds.openid.connect.sdk.UserInfoSuccessResponse;
+import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import org.eclipse.jetty.http.HttpHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,10 +25,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 public class CredentialHandler {
 
+    private static final String RESPONSE_TYPE = "application/json;charset=UTF-8";
     private static final String DEFAULT_RESPONSE_CONTENT_TYPE = "application/jwt;charset=UTF-8";
     private static final Logger LOGGER = LoggerFactory.getLogger(CredentialHandler.class);
 
@@ -73,10 +80,13 @@ public class CredentialHandler {
 
                 tokenService.revoke(accessTokenString);
 
-                response.type(DEFAULT_RESPONSE_CONTENT_TYPE);
+                response.type(RESPONSE_TYPE);
                 response.status(HttpServletResponse.SC_CREATED);
 
-                return verifiableCredential;
+                var userInfo = new UserInfo(new Subject("urn:fdc:gov.uk:2022:"+UUID.randomUUID()));
+                userInfo.setClaim("https://vocab.account.gov.uk/v1/credentialJWT", List.of(verifiableCredential));
+
+                return userInfo.toJSONString();
             };
 
     private ValidationResult validateAccessToken(String accessTokenString) {

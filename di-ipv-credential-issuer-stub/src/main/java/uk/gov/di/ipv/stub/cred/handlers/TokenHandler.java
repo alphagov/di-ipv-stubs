@@ -16,6 +16,7 @@ import spark.Route;
 import uk.gov.di.ipv.stub.cred.auth.ClientJwtVerifier;
 import uk.gov.di.ipv.stub.cred.config.ClientConfig;
 import uk.gov.di.ipv.stub.cred.config.CredentialIssuerConfig;
+import uk.gov.di.ipv.stub.cred.config.CriType;
 import uk.gov.di.ipv.stub.cred.error.ClientAuthenticationException;
 import uk.gov.di.ipv.stub.cred.service.AuthCodeService;
 import uk.gov.di.ipv.stub.cred.service.RequestedErrorResponseService;
@@ -24,6 +25,8 @@ import uk.gov.di.ipv.stub.cred.validation.ValidationResult;
 import uk.gov.di.ipv.stub.cred.validation.Validator;
 
 import javax.servlet.http.HttpServletResponse;
+
+import static uk.gov.di.ipv.stub.cred.config.CredentialIssuerConfig.getCriType;
 
 public class TokenHandler {
 
@@ -72,8 +75,9 @@ public class TokenHandler {
                     return errorResponse.toJSONObject().toJSONString();
                 }
 
-                if (Validator.isNullBlankOrEmpty(
-                        requestParams.value(RequestParamConstants.CLIENT_ID))) {
+                if (getCriType().equals(CriType.DOC_CHECK_APP_CRI_TYPE)
+                        || Validator.isNullBlankOrEmpty(
+                                requestParams.value(RequestParamConstants.CLIENT_ID))) {
                     try {
                         clientJwtVerifier.authenticateClient(requestParams);
                     } catch (ClientAuthenticationException e) {

@@ -54,6 +54,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static com.nimbusds.jose.shaded.json.parser.JSONParser.MODE_JSON_SIMPLE;
+import static uk.gov.di.ipv.stub.cred.config.CredentialIssuerConfig.getCriType;
 
 public class AuthorizeHandler {
 
@@ -147,11 +148,10 @@ public class AuthorizeHandler {
                     return null;
                 }
 
-                String sharedClaimsJson = getSharedAttributes(queryParamsMap);
-
                 Object criStubData = getCriStubData();
 
-                CriType criType = CredentialIssuerConfig.getCriType();
+                CriType criType = getCriType();
+                LOGGER.info("criType: {}", criType.value);
 
                 Map<String, Object> frontendParams = new HashMap<>();
                 frontendParams.put(RESOURCE_ID_PARAM, UUID.randomUUID().toString());
@@ -162,7 +162,9 @@ public class AuthorizeHandler {
                 frontendParams.put(IS_FRAUD_TYPE_PARAM, criType.equals(CriType.FRAUD_CRI_TYPE));
                 frontendParams.put(
                         IS_VERIFICATION_TYPE_PARAM, criType.equals(CriType.VERIFICATION_CRI_TYPE));
-                frontendParams.put(SHARED_CLAIMS, sharedClaimsJson);
+                if (!criType.equals(CriType.DOC_CHECK_APP_CRI_TYPE)) {
+                    frontendParams.put(SHARED_CLAIMS, getSharedAttributes(queryParamsMap));
+                }
                 frontendParams.put(CRI_STUB_DATA, criStubData);
 
                 String error = request.attribute(ERROR_PARAM);
@@ -212,14 +214,20 @@ public class AuthorizeHandler {
                     Map<String, Object> attributesMap =
                             generateJsonPayload(queryParamsMap.value(JSON_PAYLOAD_PARAM));
 
-                    Map<String, Object> combinedAttributeJson =
-                            generateJsonPayload(getSharedAttributes(queryParamsMap));
+                    Map<String, Object> credentialAttributesMap;
 
-                    combinedAttributeJson.putAll(attributesMap);
+                    if (getCriType().equals(CriType.DOC_CHECK_APP_CRI_TYPE)) {
+                        credentialAttributesMap = attributesMap;
+                    } else {
+                        Map<String, Object> combinedAttributeJson =
+                                generateJsonPayload(getSharedAttributes(queryParamsMap));
+                        combinedAttributeJson.putAll(attributesMap);
+                        credentialAttributesMap = combinedAttributeJson;
+                    }
 
                     Map<String, Object> gpgMap =
                             generateGpg45Score(
-                                    CredentialIssuerConfig.getCriType(),
+                                    getCriType(),
                                     queryParamsMap.value(
                                             CredentialIssuerConfig.EVIDENCE_STRENGTH_PARAM),
                                     queryParamsMap.value(
@@ -239,7 +247,7 @@ public class AuthorizeHandler {
                     }
 
                     Credential credential =
-                            new Credential(combinedAttributeJson, gpgMap, userId, clientIdValue);
+                            new Credential(credentialAttributesMap, gpgMap, userId, clientIdValue);
 
                     AuthorizationSuccessResponse successResponse =
                             generateAuthCode(
@@ -490,8 +498,11 @@ public class AuthorizeHandler {
             try {
                 SignedJWT signedJWT =
                         getSignedJWT(requestParam, clientConfig.getEncryptionPrivateKey());
-
-                if (!es256SignatureVerifier.valid(signedJWT, clientConfig.getSigningPublicJwk())) {
+                String publicJwk =
+                        getCriType().equals(CriType.DOC_CHECK_APP_CRI_TYPE)
+                                ? clientConfig.getJwtAuthentication().get("signingPublicJwk")
+                                : clientConfig.getSigningPublicJwk();
+                if (!es256SignatureVerifier.valid(signedJWT, publicJwk)) {
                     LOGGER.error("JWT signature is invalid");
                     return "Error: Signature of the shared attribute JWT is not valid";
                 }

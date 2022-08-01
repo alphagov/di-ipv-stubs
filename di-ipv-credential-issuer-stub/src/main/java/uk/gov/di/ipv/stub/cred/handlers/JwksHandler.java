@@ -13,8 +13,7 @@ public class JwksHandler {
 
     private static final String RESPONSE_TYPE = "application/json;charset=UTF-8";
 
-    public JwksHandler() {
-    }
+    public JwksHandler() {}
 
     public Route getResource =
             (Request request, Response response) -> {

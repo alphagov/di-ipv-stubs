@@ -212,7 +212,7 @@ public class Validator {
 
         String redirectUriValue = requestParams.value(RequestParamConstants.REDIRECT_URI);
         if (Validator.isNullBlankOrEmpty(redirectUriValue)) {
-            LOGGER.error("Missing authorization code");
+            LOGGER.error("Invalid Redirect URI: {}", redirectUriValue);
             return new ValidationResult(false, OAuth2Error.INVALID_REQUEST);
         }
 

@@ -3,8 +3,10 @@ package uk.gov.di.ipv.stub.cred;
 import spark.Spark;
 import uk.gov.di.ipv.stub.cred.auth.ClientJwtVerifier;
 import uk.gov.di.ipv.stub.cred.config.CredentialIssuerConfig;
+import uk.gov.di.ipv.stub.cred.config.CriType;
 import uk.gov.di.ipv.stub.cred.handlers.AuthorizeHandler;
 import uk.gov.di.ipv.stub.cred.handlers.CredentialHandler;
+import uk.gov.di.ipv.stub.cred.handlers.DocAppCredentialHandler;
 import uk.gov.di.ipv.stub.cred.handlers.JwksHandler;
 import uk.gov.di.ipv.stub.cred.handlers.TokenHandler;
 import uk.gov.di.ipv.stub.cred.service.AuthCodeService;
@@ -15,11 +17,14 @@ import uk.gov.di.ipv.stub.cred.utils.ViewHelper;
 import uk.gov.di.ipv.stub.cred.validation.Validator;
 import uk.gov.di.ipv.stub.cred.vc.VerifiableCredentialGenerator;
 
+import static uk.gov.di.ipv.stub.cred.config.CredentialIssuerConfig.getCriType;
+
 public class CredentialIssuer {
 
     private final AuthorizeHandler authorizeHandler;
     private final TokenHandler tokenHandler;
     private final CredentialHandler credentialHandler;
+    private final DocAppCredentialHandler docAppCredentialHandler;
     private final JwksHandler jwksHandler;
 
     public CredentialIssuer() {
@@ -49,6 +54,8 @@ public class CredentialIssuer {
                         clientJwtVerifier,
                         requestedErrorResponseService);
         credentialHandler = new CredentialHandler(credentialService, tokenService, vcGenerator);
+        docAppCredentialHandler =
+                new DocAppCredentialHandler(credentialService, tokenService, vcGenerator);
         jwksHandler = new JwksHandler();
 
         initRoutes();
@@ -59,7 +66,12 @@ public class CredentialIssuer {
         Spark.get("/authorize", authorizeHandler.doAuthorize);
         Spark.post("/authorize", authorizeHandler.generateResponse);
         Spark.post("/token", tokenHandler.issueAccessToken);
-        Spark.post("/credentials/issue", credentialHandler.getResource);
+        if (getCriType().equals(CriType.DOC_CHECK_APP_CRI_TYPE)) {
+            Spark.post("/credentials/issue", docAppCredentialHandler.getResource);
+        } else {
+            Spark.post("/credentials/issue", credentialHandler.getResource);
+        }
+        Spark.get("/.well-known/jwks.json", jwksHandler.getResource);
     }
 
     private void initErrorMapping() {

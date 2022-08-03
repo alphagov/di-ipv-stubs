@@ -67,6 +67,7 @@ public class JwtBuilder {
                 .claim("response_type", ResponseType.Value.CODE.toString())
                 .claim("redirect_uri", redirectUri)
                 .claim("state", UUID.randomUUID().toString())
+                .claim("govuk_signin_journey_id", UUID.randomUUID().toString())
                 .build();
     }
 
